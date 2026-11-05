@@ -368,7 +368,8 @@
           const next = level - drop;
           if (next > light[ni]) {
             light[ni] = next;
-            if (next > 1) queue.push(ni);
+            // 实心方块只点亮朝向光源的表面，不让光继续穿墙
+            if (!def.opaque && next > 1) queue.push(ni);
           }
         }
       }

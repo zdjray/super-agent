@@ -58,7 +58,7 @@
       on('inventory-close', () => g.closeInventory());
       on('btn-sound', () => g.toggleMute());
       on('sound-btn2', () => g.toggleMute());
-      on('save-btn', () => g.save(true));
+      on('save-btn', () => g.save(false));
       on('reset-btn', () => this.handleReset());
       on('pause-screen', (e) => {
         if (e.target === this.els.pause) g.resume();

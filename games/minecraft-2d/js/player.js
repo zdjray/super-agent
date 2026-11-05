@@ -89,6 +89,7 @@
       const world = this.world;
       const wasOnGround = this.onGround;
       this.onGround = false;
+      this.justJumped = false;
 
       // 是否在水中
       this.inWater = world.isWater(Math.floor(this.centerX), Math.floor(this.centerY)) ||
@@ -124,7 +125,10 @@
         this.moveAxis(this.vx * dt, 0);
         this.moveAxis(0, this.vy * dt);
         // 靠近水面按跳跃可以跳出来
-        if (this.onGround && input.jump && !this.headInWater) this.vy = JUMP_SPEED * 0.85;
+        if (this.onGround && input.jumpPressed && !this.headInWater) {
+          this.vy = JUMP_SPEED * 0.85;
+          this.justJumped = true;
+        }
       } else {
         const speed = input.sprint ? SPRINT_SPEED : WALK_SPEED;
         this.vx = approach(this.vx, dir * speed, (this.onGround || wasOnGround ? 46 : 20) * dt);
@@ -144,6 +148,7 @@
           this.vy = JUMP_SPEED;
           this.jumpBuffer = 0;
           this.coyote = 0;
+          this.justJumped = true;
         }
         if (!input.jump && this.vy < -4) this.vy = -4;
 

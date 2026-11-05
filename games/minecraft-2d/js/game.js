@@ -600,14 +600,6 @@
       this.spawnPlaceParticles(x, y, def);
       this.markDirty();
       this.renderer.shake = 0.6;
-
-      // 连续放置时，光标停留在下方地面就自动往上叠
-      if (this.hovered && BLOCKS[this.world.get(this.hovered.x, this.hovered.y)].solid) {
-        const aboveY = this.hovered.y - 1;
-        if (REPLACEABLE.has(this.world.get(this.hovered.x, aboveY))) {
-          this.hovered.y = aboveY;
-        }
-      }
     }
 
     spawnBreakParticles(x, y, def) {
@@ -699,6 +691,7 @@
       this.player.heldBlock = this.hotbar[this.selected];
       this.player.update(dt, this.input);
       this.input.jumpPressed = false;
+      if (this.player.justJumped) this.audio.play('jump');
 
       this.updateHovered();
       this.updateMining(dt);
