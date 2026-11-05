@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>方块世界 2D · 我的世界风格沙盒</title>
+  <meta name="description" content="一个用方块搭出来的 2D 沙盒世界：挖掘、建造、探索，全在浏览器里运行。">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%236ab04a'/%3E%3Crect y='6' width='16' height='10' fill='%23795536'/%3E%3Crect x='2' y='2' width='2' height='2' fill='%23518c38'/%3E%3Crect x='9' y='3' width='2' height='2' fill='%2382c95e'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <main id="app">
+    <canvas id="game" aria-label="方块世界 2D 游戏画面"></canvas>
+
+    <!-- 游戏内 HUD -->
+    <div id="hud" class="hidden" aria-live="off">
+      <div class="hud-row hud-top">
+        <div id="info-panel" class="hud-panel">
+          <span id="hud-day">第 1 天</span>
+          <span class="sep">·</span>
+          <span id="hud-phase">清晨</span>
+          <span class="sep">·</span>
+          <span id="hud-coords">X 0 · Y 0</span>
+          <span id="hud-biome" class="biome-tag">平原</span>
+        </div>
+        <div class="hud-actions">
+          <button id="btn-sound" class="icon-btn" type="button" title="声音 (M)" aria-label="切换声音">🔊</button>
+          <button id="btn-pause" class="icon-btn" type="button" title="暂停 (Esc)" aria-label="暂停游戏">❚❚</button>
+        </div>
+      </div>
+
+      <div class="hud-bottom">
+        <div id="block-name" class="block-name"></div>
+        <div id="hotbar" class="hotbar" role="toolbar" aria-label="快捷栏"></div>
+        <p id="hint" class="hint">A / D 移动 · 空格 跳跃 · 左键挖掘 · 右键放置 · E 背包</p>
+      </div>
+    </div>
+
+    <section id="start-screen" class="overlay">
+      <div class="panel start-panel">
+        <div class="logo-blocks" aria-hidden="true">
+          <span class="logo-block b1"></span>
+          <span class="logo-block b2"></span>
+          <span class="logo-block b3"></span>
+          <span class="logo-block b4"></span>
+        </div>
+        <h1>方块世界 <em>2D</em></h1>
+        <p class="tagline">挖穿大地，搭起属于你的世界。</p>
+
+        <div class="key-list">
+          <div><kbd>A</kbd><kbd>D</kbd><span>移动</span></div>
+          <div><kbd>空格</kbd><span>跳跃</span></div>
+          <div><kbd>左键</kbd><span>挖掘</span></div>
+          <div><kbd>右键</kbd><span>放置</span></div>
+          <div><kbd>1</kbd><span>–</span><kbd>9</kbd><span>快捷栏</span></div>
+          <div><kbd>E</kbd><span>背包</span></div>
+          <div><kbd>F</kbd><span>飞行</span></div>
+          <div><kbd>Esc</kbd><span>暂停</span></div>
+        </div>
+
+        <button id="start-btn" class="primary big" type="button">开始游戏</button>
+
+        <p class="seed-line">
+          世界种子 <code id="start-seed">—</code>
+          <button id="reseed-btn" class="link-btn" type="button">换一个世界</button>
+        </p>
+        <p class="tiny">世界进度自动保存在这台设备的浏览器里。</p>
+        <p class="touch-note">这是一个桌面游戏，请使用键盘和鼠标游玩。</p>
+      </div>
+    </section>
+
+    <section id="pause-screen" class="overlay hidden" role="dialog" aria-modal="true" aria-labelledby="pause-title">
+      <div class="panel pause-panel">
+        <h2 id="pause-title">已暂停</h2>
+        <p class="muted">世界时间暂时停下，随时可以继续。</p>
+        <div class="menu-actions">
+          <button id="resume-btn" class="primary" type="button">继续游戏</button>
+          <button id="inventory-btn" type="button">打开背包 <kbd>E</kbd></button>
+          <button id="sound-btn2" type="button">声音：开</button>
+          <button id="save-btn" type="button">保存世界</button>
+          <button id="reset-btn" class="danger" type="button">重新生成世界</button>
+        </div>
+        <p class="seed-line">种子 <code id="pause-seed">—</code></p>
+        <p class="tiny">按 <kbd>Esc</kbd> 返回游戏</p>
+      </div>
+    </section>
+
+    <section id="inventory-screen" class="overlay hidden" role="dialog" aria-modal="true" aria-labelledby="inventory-title">
+      <div class="panel inventory-panel">
+        <h2 id="inventory-title">背包</h2>
+        <p class="muted">点击方块放入当前快捷栏槽位；滚动滚轮可切换槽位。</p>
+        <div id="inventory-grid" class="inventory-grid"></div>
+        <div class="inventory-footer">
+          <span id="inventory-slot-label">当前槽位 1</span>
+          <button id="inventory-close" class="primary" type="button">关闭 <kbd>E</kbd></button>
+        </div>
+      </div>
+    </section>
+
+    <div id="toast" class="toast" role="status"></div>
+    <div id="loading" class="loading">正在生成世界…</div>
+  </main>
+
+  <script src="js/noise.js"></script>
+  <script src="js/blocks.js"></script>
+  <script src="js/world.js"></script>
+  <script src="js/player.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/renderer.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/game.js"></script>
+</body>
+</html>
